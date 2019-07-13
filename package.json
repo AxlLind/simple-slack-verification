@@ -1,0 +1,20 @@
+{
+  "name": "slack-auth",
+  "version": "0.0.1",
+  "description": "Simple express middleware for Slack signed secret authentication",
+  "main": "src/index.js",
+  "repository": "https://github.com/AxlLind/slack-auth",
+  "author": "Axel Lindeberg <axel.ew.lindeberg@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "keywords": [
+    "slack",
+    "express",
+    "middleware",
+    "verification",
+    "authorization"
+  ],
+  "dependencies": {
+    "qs": "^6.7.0"
+  }
+}
