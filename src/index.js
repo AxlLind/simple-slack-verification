@@ -12,6 +12,7 @@ function noopMiddleware(_req, _res, next) {
 }
 
 function slackAuth(options) {
+  options = options || {};
   if (options.disabled) {
     return noopMiddleware;
   }
