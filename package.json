@@ -1,9 +1,9 @@
 {
-  "name": "slack-auth",
+  "name": "simple-slack-verification",
   "version": "0.0.1",
   "description": "Simple express middleware for Slack signed secret authentication",
   "main": "src/index.js",
-  "repository": "https://github.com/AxlLind/slack-auth",
+  "repository": "https://github.com/AxlLind/simple-slack-verification",
   "author": "Axel Lindeberg <axel.ew.lindeberg@gmail.com>",
   "license": "MIT",
   "private": false,
