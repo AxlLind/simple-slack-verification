@@ -19,23 +19,20 @@ const slackAuth = ({
     return noopMiddleware;
   }
   return (req, res, next) => {
-    const {
-      "x-slack-request-timestamp": timestamp,
-      "x-slack-signature": givenSignature
-    } = req.headers;
+    const timestamp = req.headers["x-slack-request-timestamp"];
+    const givenSignature = req.headers["x-slack-signature"];
 
-    // required headers missing or timestamp more than 5 min old
     if (
       !timestamp ||
       !givenSignature ||
       Math.floor(new Date() / 1000) - timestamp > maxSecondsOld
     ) {
-      return res.send(401).send(opts.unauthorizedResponse);
+      return res.send(401).send(unauthorizedResponse);
     }
 
     const rawBody = qs.stringify(req.body, { format: "RFC1738" });
     const signature = crypto
-      .createHmac("sha256", opts.secret)
+      .createHmac("sha256", secret)
       .update(`v0:${timestamp}:${rawBody}`)
       .digest("hex");
     if (
@@ -44,7 +41,7 @@ const slackAuth = ({
         Buffer.from(givenSignature, "utf8")
       )
     ) {
-      return res.send(401).send(opts.unauthorizedResponse);
+      return res.send(401).send(unauthorizedResponse);
     }
     next();
   };
