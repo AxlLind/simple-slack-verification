@@ -7,20 +7,19 @@ var DEFAULT_RESPONSE = {
   text: 'Not an authorized Slack request.'
 };
 
-function noopMiddleware(_req, _res, next) {
-  next();
-}
-
 function slackAuth(options) {
-  options = options || {};
-  if (options.disabled) {
-    return noopMiddleware;
+  var opts = options || {};
+  if (opts.disabled) {
+    return function(req, res, next) { next(); };
   }
-  var secret = options.secret || process.env.SLACK_SIGNING_SECRET;
-  var unauthorizedResponse = options.unauthorizedResponse || DEFAULT_RESPONSE;
-  var maxSecondsOld = options.maxSecondsOld || 300;
+  var maxSecondsOld = opts.maxSecondsOld || 300;
+  var unauthorizedResponse = opts.unauthorizedResponse || DEFAULT_RESPONSE;
+  var secret = opts.secret || process.env.SLACK_SIGNING_SECRET;
+  if (!secret) {
+    throw new Error("simple-slack-verification: No secret given.");
+  }
 
-  return function slackAuth(req, res, next) {
+  return function(req, res, next) {
     var timestamp = req.headers['x-slack-request-timestamp'];
     var givenSignature = req.headers['x-slack-signature'];
 
