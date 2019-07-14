@@ -6,7 +6,7 @@ var DEFAULT_RESPONSE = {
   text: 'Unable to verify Slack request'
 };
 
-function slackAuth(options) {
+function slackVerification(options) {
   var opts = options || {};
   if (opts.disabled) {
     return function(_req, _res, next) { next(); };
@@ -49,4 +49,4 @@ function slackAuth(options) {
   };
 };
 
-module.exports = slackAuth;
+module.exports = slackVerification;
