@@ -26,20 +26,21 @@ function slackVerification(options) {
     if (
       !timestamp ||
       !givenSignature ||
+      givenSignature.length !== 67 ||
       Math.floor(new Date() / 1000) - timestamp > maxSecondsOld
     ) {
       return res.status(403).send(unauthorizedResponse);
     }
 
     var rawBody = qs.stringify(req.body, { format: 'RFC1738' });
-    var signature = crypto
+    var signature = 'v0=' + crypto
       .createHmac('sha256', secret)
       .update('v0:' + timestamp + ':' + rawBody)
       .digest('hex');
     if (
       !crypto.timingSafeEqual(
-        Buffer.from('v0=' + signature, 'utf8'),
-        Buffer.from(givenSignature, 'utf8')
+        Buffer.from(signature),
+        Buffer.from(givenSignature)
       )
     ) {
       return res.status(403).send(unauthorizedResponse);
