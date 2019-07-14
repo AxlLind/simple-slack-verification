@@ -24,23 +24,28 @@ var express = require('express');
 var slackVerification = require('simple-slack-verification');
 
 // with options
-var options = {
-  secret: "SLACK SECRET, PLEASE STORE SAFELY",
-  unauthorizedResponse: { code: 'unauthorized', message: 'Custom message' },
-  maxSecondsOld: 60,
-  disabled: process.env.DEVELOPMENT === 'true'
-}
 var app = express();
-app.use( slackVerification(options) );
+app.use(
+  slackVerification({
+    secret: "YOUR SLACK SECRET, PLEASE STORE SAFELY",
+    unauthorizedResponse: { code: 'unauthorized', message: 'Unauthorized request' },
+    maxSecondsOld: 60,
+    disabled: process.env.DEVELOPMENT === 'true'
+  })
+);
 ```
 
 ### Options
 Passed in as an object to the `slackVerification` function with the following fields. All of them are optional and if omitted defaults to what's documented below:
-- `secret`: Your personal [Slack secret](https://api.slack.com/docs/verifying-requests-from-slack#signing_secrets_admin_page).
+- `secret`: Your personal [Slack secret](https://api.slack.com/docs/verifying-requests-from-slack#signing_secrets_admin_page). You can either give it in this parameter or just set it as the environment variable `SLACK_SIGNING_SECRET`. If this option is given the environment is not used.
   - Default: `process.env.SLACK_SIGNING_SECRET`.
+  - Type: `String`
 - `unauthorizedResponse`: Whatever is sent to the user when unable to verify signing.
-  - Default: `{ code: 'unauthorized', response_type: 'ephemeral', text: 'Not an authorized Slack request.' }`
+  - Default: nothing, only status 401.
+  - Type: Anything [`res.send()` allows](https://expressjs.com/en/api.html#res.send).
 - `maxSecondsOld`: The max age of the message you allow, in seconds.
-  - Default: `300`, as per Slacks recommendation from the documentation.
-- `disabled`: **WARNING** If truthy value it completely disables the middleware. Useful for development but please be careful with this flag. Never set to true in production.
+  - Default: `300`, as per Slacks recommendation from their documentation.
+  - Type: `Number`
+- `disabled`: :warning: **WARNING** If a truthy value the middleware is completely disabled. This is useful for development but please be careful with this option. Never set to true in production.
   - Default: `false`
+  - Type: Any truthy/falsy value.
