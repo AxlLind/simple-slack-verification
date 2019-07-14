@@ -3,13 +3,13 @@ var qs = require('qs');
 
 var DEFAULT_RESPONSE = {
   code: 'unauthorized',
-  message: 'Unable to verify Slack request'
+  text: 'Unable to verify Slack request'
 };
 
 function slackAuth(options) {
   var opts = options || {};
   if (opts.disabled) {
-    return function(req, res, next) { next(); };
+    return function(_req, _res, next) { next(); };
   }
 
   var maxSecondsOld = opts.maxSecondsOld || 300;
@@ -18,6 +18,7 @@ function slackAuth(options) {
   if (!secret) {
     throw new Error("simple-slack-verification: No secret given.");
   }
+
   return function(req, res, next) {
     var timestamp = req.headers['x-slack-request-timestamp'];
     var givenSignature = req.headers['x-slack-signature'];

@@ -41,7 +41,7 @@ Passed in as an object to the `slackVerification` function with the following fi
   - Default: `process.env.SLACK_SIGNING_SECRET`.
   - Type: `String`
 - `unauthorizedResponse`: Whatever is sent to the user when unable to verify signing.
-  - Default: `{ code: 'unauthorized', message: 'Unable to verify Slack request' }`
+  - Default: `{ code: 'unauthorized', text: 'Unable to verify Slack request' }`
   - Type: Anything [`res.send()` allows](https://expressjs.com/en/api.html#res.send).
 - `maxSecondsOld`: The max age of the message you allow, in seconds.
   - Default: `300`, as per Slacks recommendation from their documentation.
