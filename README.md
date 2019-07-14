@@ -1,7 +1,7 @@
 # simple-slack-verification
 A simple express middleware for Slack signed secret authentication. See Slack's documentation [here](https://api.slack.com/docs/verifying-requests-from-slack).
 
-If the request did not come from your Slack the middleware does not pass the request forward. It returns with status 401 and sends the `unauthorizedResponse` object (see below).
+If the request did not come from your Slack the middleware does not pass the request forward. It returns with status 403 and optionally sends the `unauthorizedResponse` object (see below).
 
 ## Installation
 ```
@@ -41,7 +41,7 @@ Passed in as an object to the `slackVerification` function with the following fi
   - Default: `process.env.SLACK_SIGNING_SECRET`.
   - Type: `String`
 - `unauthorizedResponse`: Whatever is sent to the user when unable to verify signing.
-  - Default: nothing, only status 401.
+  - Default: nothing, only status 403.
   - Type: Anything [`res.send()` allows](https://expressjs.com/en/api.html#res.send).
 - `maxSecondsOld`: The max age of the message you allow, in seconds.
   - Default: `300`, as per Slacks recommendation from their documentation.

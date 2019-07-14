@@ -14,8 +14,8 @@ function slackAuth(options) {
     throw new Error("simple-slack-verification: No secret given.");
   }
   var response = unauthorizedResponse
-    ? function(res) { res.send(401).send(unauthorizedResponse); }
-    : function(res) { res.send(401); }
+    ? function(res) { res.status(403).send(unauthorizedResponse); }
+    : function(res) { res.sendStatus(403); }
 
   return function(req, res, next) {
     var timestamp = req.headers['x-slack-request-timestamp'];
