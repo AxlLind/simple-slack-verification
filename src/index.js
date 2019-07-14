@@ -21,28 +21,25 @@ function slackVerification(options) {
 
   return function(req, res, next) {
     var timestamp = req.headers['x-slack-request-timestamp'];
-    var givenSignature = req.headers['x-slack-signature'];
+    var slackSignature = req.headers['x-slack-signature'];
 
     if (
       !timestamp ||
-      !givenSignature ||
-      givenSignature.length !== 67 ||
+      !slackSignature ||
+      slackSignature.length !== 67 ||
       Math.floor(new Date() / 1000) - timestamp > maxSecondsOld
     ) {
       return res.status(403).send(unauthorizedResponse);
     }
 
+    var givenSignature = Buffer.from(slackSignature);
     var rawBody = qs.stringify(req.body, { format: 'RFC1738' });
-    var signature = 'v0=' + crypto
+    var signature = Buffer.from('v0=' + crypto
       .createHmac('sha256', secret)
       .update('v0:' + timestamp + ':' + rawBody)
-      .digest('hex');
-    if (
-      !crypto.timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(givenSignature)
-      )
-    ) {
+      .digest('hex')
+    );
+    if (!crypto.timingSafeEqual(signature, givenSignature)) {
       return res.status(403).send(unauthorizedResponse);
     }
 
