@@ -1,43 +1,53 @@
 var crypto = require('crypto');
 var qs = require('qs');
 
+var DEFAULT_RESPONSE = {
+  code: 'unauthorized',
+  text: 'Unable to verify Slack request'
+};
+
+function verifySignature(secret, signature, timestamp, body) {
+  if (signature.length !== 67) {
+    return false;
+  }
+  var givenSignature = Buffer.from(signature);
+  var rawBody = qs.stringify(body, { format: 'RFC1738' });
+  var computedSignature = Buffer.from('v0=' + crypto
+    .createHmac('sha256', secret)
+    .update('v0:' + timestamp + ':' + rawBody)
+    .digest('hex')
+  );
+  return crypto.timingSafeEqual(computedSignature, givenSignature);
+}
+
 function slackVerification(options) {
   var opts = options || {};
-  var maxSecondsOld = opts.maxSecondsOld || 300;
-  var unauthorizedResponse = opts.unauthorizedResponse || {
-    code: 'unauthorized',
-    text: 'Unable to verify Slack request'
-  };
   var secret = opts.secret || process.env.SLACK_SIGNING_SECRET;
+  var unauthorizedResponse = opts.unauthorizedResponse || DEFAULT_RESPONSE;
+  var status = opts.status || 403;
+  var maxSecondsOld = opts.maxSecondsOld || 300;
   if (!secret) {
     throw new Error("simple-slack-verification: No secret given.");
   }
 
   return function(req, res, next) {
     var timestamp = req.headers['x-slack-request-timestamp'];
-    var slackSignature = req.headers['x-slack-signature'];
-    if (
-      !timestamp ||
-      !slackSignature ||
-      slackSignature.length !== 67 ||
-      Math.floor(new Date() / 1000) - timestamp > maxSecondsOld
-    ) {
-      return res.status(403).send(unauthorizedResponse);
+    var signature = req.headers['x-slack-signature'];
+    // missing headers
+    if (!timestamp || !signature) {
+      return res.status(status).send(unauthorizedResponse);
     }
-
-    var givenSignature = Buffer.from(slackSignature);
-    var rawBody = qs.stringify(req.body, { format: 'RFC1738' });
-    var signature = Buffer.from('v0=' + crypto
-      .createHmac('sha256', secret)
-      .update('v0:' + timestamp + ':' + rawBody)
-      .digest('hex')
-    );
-    if (!crypto.timingSafeEqual(signature, givenSignature)) {
-      return res.status(403).send(unauthorizedResponse);
+    // old timestamp
+    if (Math.floor(new Date() / 1000) - timestamp > maxSecondsOld) {
+      return res.status(status).send(unauthorizedResponse);
     }
-
+    // invalid signature
+    if (!verifySignature(secret, signature, timestamp, req.body)) {
+      return res.status(status).send(unauthorizedResponse);
+    }
     next();
   };
 };
 
 module.exports = slackVerification;
+module.exports.verifySignature = verifySignature;
