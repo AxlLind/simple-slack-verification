@@ -1,6 +1,6 @@
 {
   "name": "simple-slack-verification",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Simple express middleware for Slack signed secret authentication",
   "main": "src/index.js",
   "repository": "https://github.com/AxlLind/simple-slack-verification",
@@ -12,7 +12,8 @@
     "express",
     "middleware",
     "verification",
-    "authorization"
+    "authorization",
+    "signing"
   ],
   "dependencies": {
     "qs": "^6.7.0"

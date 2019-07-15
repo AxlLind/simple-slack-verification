@@ -28,9 +28,11 @@ var app = express();
 app.use(
   slackVerification({
     secret: "YOUR SLACK SECRET, PLEASE STORE SAFELY",
-    unauthorizedResponse: { code: 'unauthorized', message: 'Unauthorized request' },
-    maxSecondsOld: 60,
-    disabled: process.env.DEVELOPMENT === 'true'
+    unauthorizedResponse: {
+      code: 'unauthorized',
+      message: 'Unauthorized request'
+    },
+    maxSecondsOld: 60
   })
 );
 ```
@@ -46,9 +48,6 @@ Passed in as an object to the `slackVerification` function with the following fi
 - `maxSecondsOld`: The max age of the message you allow, in seconds.
   - Default: `300`, as per Slacks recommendation from their documentation.
   - Type: `Number`
-- `disabled`: :warning: **WARNING** If a truthy value the middleware is completely disabled. This is useful for development but please be careful with this option. Never set to true in production.
-  - Default: `false`
-  - Type: Any truthy/falsy value.
 
 ## Security
 Since this is a security-sensitive package here are some things done to increase security:
