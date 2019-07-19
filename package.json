@@ -17,7 +17,7 @@
   ],
   "husky": {
     "hooks": {
-      "precommit": "node test.js"
+      "pre-commit": "node tests/test_signature_computing.js"
     }
   },
   "dependencies": {
