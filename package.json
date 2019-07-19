@@ -15,7 +15,15 @@
     "authorization",
     "signing"
   ],
+  "husky": {
+    "hooks": {
+      "precommit": "node test.js"
+    }
+  },
   "dependencies": {
     "qs": "^6.7.0"
+  },
+  "devDependencies": {
+    "husky": "^3.0.1"
   }
 }
