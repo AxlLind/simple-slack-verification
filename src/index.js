@@ -11,13 +11,13 @@ function verifySignature(secret, signature, timestamp, body) {
     return false;
   }
   var givenSignature = Buffer.from(signature);
-  var rawBody = qs.stringify(body, { format: 'RFC1738' });
   var computedSignature = Buffer.from('v0=' + crypto
     .createHmac('sha256', secret)
-    .update('v0:' + timestamp + ':' + rawBody)
+    .update('v0:' + timestamp + ':')
+    .update(qs.stringify(body, { format: 'RFC1738' }))
     .digest('hex')
   );
-  return crypto.timingSafeEqual(computedSignature, givenSignature);
+  return crypto.timingSafeEqual(givenSignature, computedSignature);
 }
 
 function slackVerification(options) {
