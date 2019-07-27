@@ -11,7 +11,7 @@ var body = {
   param: "hello",
 };
 
-if (!verifySignature(secret, signature, timestamp, body)) {
+if (!verifySignature(signature, timestamp, body, secret)) {
   console.log("Test failed!");
   process.exit(1);
 }
