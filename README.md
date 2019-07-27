@@ -42,30 +42,35 @@ app.use(
 ```
 
 ### Options
-Passed in as an object to the `slackVerification` function with the following fields. All of them are optional and if omitted defaults to what's documented below:
+```js
+slackVerification({ secret, unauthorizedResponse, status, maxSecondsOld })
+```
+
+Passed in as an object to the `slackVerification` function with the following fields. All of them are optional (including the object itself) and if omitted defaults to what's documented below:
 - `secret`: Your personal [Slack secret](https://api.slack.com/docs/verifying-requests-from-slack#signing_secrets_admin_page). You can either give it in this parameter or just set it as the environment variable `SLACK_SIGNING_SECRET`. If this option is given the environment variable is not used.
   - Default: `process.env.SLACK_SIGNING_SECRET`.
-  - Type: `String`
+  - Type: `string`
 - `unauthorizedResponse`: Sent in the response when unable to verify signature.
   - Default: `{ code: 'unauthorized', text: 'Unable to verify Slack request' }`
   - Type: Anything [`res.send()` allows](https://expressjs.com/en/api.html#res.send).
 - `status`: The status code of the response when unable to verify signature.
   - Default: `403`
-  - Type: `Number`
+  - Type: `integer`
 - `maxSecondsOld`: The max age of the message you allow, in seconds.
   - Default: `300`, as per Slacks recommendation from their documentation.
-  - Type: `Number`
+  - Type: `integer`
 
 ## Usage of `verifySignature` function
-Note that this function does not verify the age of the timestamp.
+**Note** that this function does not verify the age of the timestamp like the middleware does.
 
 ```js
 var slackVerification = require('simple-slack-verification');
 var verifySignature = slackVerification.verifySignature;
 
-// ...
+...
 
-if (verifySignature(secret, signature, timestamp, body)) {
+// uses process.env.SLACK_SIGNING_SECRET since 4th argument wasn't given
+if (verifySignature(signature, timestamp, body)) {
   // valid request, do something with it
 } else {
   // request did not come from your slack
@@ -73,15 +78,19 @@ if (verifySignature(secret, signature, timestamp, body)) {
 ```
 
 ### Parameters
-Returns `true` if the signature is valid, `false` otherwise.
-- `secret`: Your personal [Slack secret](https://api.slack.com/docs/verifying-requests-from-slack#signing_secrets_admin_page).
-  - Type: `String`
-- `signature`: The signature to verify.
-  - Type: `String`
-- `timestamp`: The given timestamp of the request.
-  - Type: `String | Number`
+```js
+verifySignature(signature, timestamp, body, secret?)
+```
+
+Returns `true` if the signature is valid, `false` otherwise. First three arguments are required.
+- `signature`: The signature to verify, i.e from the `x-slack-signature` header.
+  - Type: `string`
+- `timestamp`: The given timestamp of the request, i.e from the `x-slack-request-timestamp` header.
+  - Type: `string | integer`
 - `body`: The body of the request, in express `req.body`.
-  - Type: `Object`
+  - Type: `object`
+- `secret`: Your personal [Slack secret](https://api.slack.com/docs/verifying-requests-from-slack#signing_secrets_admin_page). This argument is **optional** and defaults to `process.env.SLACK_SIGNING_SECRET`.
+  - Type: `string`
 
 ## Security
 Since this is a security-sensitive package here are some things done to increase security:

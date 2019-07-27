@@ -1,18 +1,19 @@
 var crypto = require('crypto');
 var qs = require('qs');
 
+var SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 var DEFAULT_RESPONSE = {
   code: 'unauthorized',
   text: 'Unable to verify Slack request'
 };
 
-function verifySignature(secret, signature, timestamp, body) {
+function verifySignature(signature, timestamp, body, secret) {
   if (signature.length !== 67) {
     return false;
   }
   var givenSignature = Buffer.from(signature);
   var computedSignature = Buffer.from('v0=' + crypto
-    .createHmac('sha256', secret)
+    .createHmac('sha256', secret || SLACK_SIGNING_SECRET)
     .update('v0:' + timestamp + ':')
     .update(qs.stringify(body, { format: 'RFC1738' }))
     .digest('hex')
@@ -22,7 +23,7 @@ function verifySignature(secret, signature, timestamp, body) {
 
 function slackVerification(options) {
   var opts = options || {};
-  var secret = opts.secret || process.env.SLACK_SIGNING_SECRET;
+  var secret = opts.secret || SLACK_SIGNING_SECRET;
   var unauthorizedResponse = opts.unauthorizedResponse || DEFAULT_RESPONSE;
   var status = opts.status || 403;
   var maxSecondsOld = opts.maxSecondsOld || 300;
@@ -42,7 +43,7 @@ function slackVerification(options) {
       return res.status(status).send(unauthorizedResponse);
     }
     // invalid signature
-    if (!verifySignature(secret, signature, timestamp, req.body)) {
+    if (!verifySignature(signature, timestamp, req.body, secret)) {
       return res.status(status).send(unauthorizedResponse);
     }
     next();
