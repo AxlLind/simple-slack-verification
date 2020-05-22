@@ -1,4 +1,4 @@
-var slackVerification = require('../src');
+var slackVerification = require('../index.js');
 var verifySignature = slackVerification.verifySignature;
 
 // Simple test to verify that signature computing works
